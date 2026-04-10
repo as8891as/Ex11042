@@ -20,7 +20,17 @@
         android:text="* לחיצה ארוכה על הוצאה לעדכון או מחיקה"
         android:textSize="12sp"
         android:textColor="#888888"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/tvEmptyStateMain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="אין הוצאות שמורות."
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"
+        android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvExpensesList"

@@ -57,6 +57,16 @@
         android:text="חפש"
         android:layout_marginBottom="16dp"/>
 
+    <TextView
+        android:id="@+id/tvEmptyStateSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="לא נמצאו הוצאות התואמות לחיפוש."
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"
+        android:visibility="gone" />
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

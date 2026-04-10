@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,6 +26,7 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements ExpenseAdapter.OnItemLongClickListener {
 
     private RecyclerView rvExpensesList;
+    private TextView tvEmptyStateMain;
     private ExpenseAdapter adapter;
     private ExpenseDatabaseHelper dbHelper;
     private List<Expense> currentList;
@@ -40,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
         setContentView(R.layout.activity_main);
 
         rvExpensesList = findViewById(R.id.rvExpensesList);
+        tvEmptyStateMain = findViewById(R.id.tvEmptyStateMain);
+
         rvExpensesList.setLayoutManager(new LinearLayoutManager(this));
 
         dbHelper = new ExpenseDatabaseHelper(this);
@@ -95,13 +100,21 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
     }
 
     /**
-     * The method retrieves updated data from the database and updates the RecyclerView.
+     * The method retrieves updated data from the database and updates the RecyclerView or shows an empty state.
      * <p>
      */
     private void refreshList() {
         currentList = dbHelper.getAllExpenses();
-        adapter = new ExpenseAdapter(currentList, this);
-        rvExpensesList.setAdapter(adapter);
+
+        if (currentList.isEmpty()) {
+            tvEmptyStateMain.setVisibility(View.VISIBLE);
+            rvExpensesList.setVisibility(View.GONE);
+        } else {
+            tvEmptyStateMain.setVisibility(View.GONE);
+            rvExpensesList.setVisibility(View.VISIBLE);
+            adapter = new ExpenseAdapter(currentList, this);
+            rvExpensesList.setAdapter(adapter);
+        }
     }
 
     /**

@@ -9,6 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,6 +31,7 @@ public class SearchFilterActivity extends AppCompatActivity {
     private Spinner spinnerFilterCategory, spinnerSortBy;
     private Button btnApplyFilter;
     private RecyclerView rvFilteredExpenses;
+    private TextView tvEmptyStateSearch;
     private ExpenseDatabaseHelper dbHelper;
 
     /**
@@ -48,6 +51,7 @@ public class SearchFilterActivity extends AppCompatActivity {
         spinnerSortBy = findViewById(R.id.spinnerSortBy);
         btnApplyFilter = findViewById(R.id.btnApplyFilter);
         rvFilteredExpenses = findViewById(R.id.rvFilteredExpenses);
+        tvEmptyStateSearch = findViewById(R.id.tvEmptyStateSearch);
 
         rvFilteredExpenses.setLayoutManager(new LinearLayoutManager(this));
         dbHelper = new ExpenseDatabaseHelper(this);
@@ -114,13 +118,33 @@ public class SearchFilterActivity extends AppCompatActivity {
         List<Expense> allExpenses = dbHelper.getAllExpenses();
         List<Expense> filteredList = new ArrayList<>();
 
-        String minPriceStr = etMinPrice.getText().toString();
-        String maxPriceStr = etMaxPrice.getText().toString();
+        String minPriceStr = etMinPrice.getText().toString().trim();
+        String maxPriceStr = etMaxPrice.getText().toString().trim();
         String selectedCategory = spinnerFilterCategory.getSelectedItem().toString();
         String selectedSort = spinnerSortBy.getSelectedItem().toString();
 
-        double min = minPriceStr.isEmpty() ? 0 : Double.parseDouble(minPriceStr);
-        double max = maxPriceStr.isEmpty() ? Double.MAX_VALUE : Double.parseDouble(maxPriceStr);
+        double min = 0;
+        if (!minPriceStr.isEmpty()) {
+            if (minPriceStr.equals(".") || !minPriceStr.matches("^[0-9]*\\.?[0-9]*$") || minPriceStr.length() > 9) {
+                Toast.makeText(this, "מחיר מינימום לא תקין", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            min = Double.parseDouble(minPriceStr);
+        }
+
+        double max = Double.MAX_VALUE;
+        if (!maxPriceStr.isEmpty()) {
+            if (maxPriceStr.equals(".") || !maxPriceStr.matches("^[0-9]*\\.?[0-9]*$") || maxPriceStr.length() > 9) {
+                Toast.makeText(this, "מחיר מקסימום לא תקין", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            max = Double.parseDouble(maxPriceStr);
+        }
+
+        if (min > max) {
+            Toast.makeText(this, "מחיר המינימום לא יכול להיות גדול מהמקסימום", Toast.LENGTH_LONG).show();
+            return;
+        }
 
         for (Expense e : allExpenses) {
             boolean isPriceValid = e.getAmount() >= min && e.getAmount() <= max;
@@ -131,27 +155,35 @@ public class SearchFilterActivity extends AppCompatActivity {
             }
         }
 
-        if (selectedSort.equals("מחיר עולה")) {
-            Collections.sort(filteredList, new Comparator<Expense>() {
-                @Override
-                public int compare(Expense e1, Expense e2) {
-                    return Double.compare(e1.getAmount(), e2.getAmount());
-                }
-            });
-        } else if (selectedSort.equals("מחיר יורד")) {
-            Collections.sort(filteredList, new Comparator<Expense>() {
-                @Override
-                public int compare(Expense e1, Expense e2) {
-                    return Double.compare(e2.getAmount(), e1.getAmount());
-                }
-            });
-        }
+        if (filteredList.isEmpty()) {
+            tvEmptyStateSearch.setVisibility(View.VISIBLE);
+            rvFilteredExpenses.setVisibility(View.GONE);
+        } else {
+            tvEmptyStateSearch.setVisibility(View.GONE);
+            rvFilteredExpenses.setVisibility(View.VISIBLE);
 
-        ExpenseAdapter adapter = new ExpenseAdapter(filteredList, new ExpenseAdapter.OnItemLongClickListener() {
-            @Override
-            public void onItemLongClick(Expense expense) {
+            if (selectedSort.equals("מחיר עולה")) {
+                Collections.sort(filteredList, new Comparator<Expense>() {
+                    @Override
+                    public int compare(Expense e1, Expense e2) {
+                        return Double.compare(e1.getAmount(), e2.getAmount());
+                    }
+                });
+            } else if (selectedSort.equals("מחיר יורד")) {
+                Collections.sort(filteredList, new Comparator<Expense>() {
+                    @Override
+                    public int compare(Expense e1, Expense e2) {
+                        return Double.compare(e2.getAmount(), e1.getAmount());
+                    }
+                });
             }
-        });
-        rvFilteredExpenses.setAdapter(adapter);
+
+            ExpenseAdapter adapter = new ExpenseAdapter(filteredList, new ExpenseAdapter.OnItemLongClickListener() {
+                @Override
+                public void onItemLongClick(Expense expense) {
+                }
+            });
+            rvFilteredExpenses.setAdapter(adapter);
+        }
     }
 }

@@ -137,12 +137,22 @@ public class AddExpenseActivity extends AppCompatActivity {
      * <p>
      */
     private void saveData() {
-        String desc = etDescription.getText().toString();
-        String amountStr = etAmount.getText().toString();
+        String desc = etDescription.getText().toString().trim();
+        String amountStr = etAmount.getText().toString().trim();
         String category = spinnerCategory.getSelectedItem().toString();
 
         if (desc.isEmpty() || amountStr.isEmpty()) {
             Toast.makeText(this, "נא למלא את כל השדות", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (amountStr.length() > 9) {
+            Toast.makeText(this, "הסכום שהוזן גדול מדי", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (amountStr.equals(".") || !amountStr.matches("^[0-9]*\\.?[0-9]*$")) {
+            Toast.makeText(this, "אנא הזן סכום תקין", Toast.LENGTH_SHORT).show();
             return;
         }
 
