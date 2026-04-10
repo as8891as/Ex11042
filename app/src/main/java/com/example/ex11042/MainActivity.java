@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_expense_list);
+        setContentView(R.layout.activity_main);
 
         rvExpensesList = findViewById(R.id.rvExpensesList);
         rvExpensesList.setLayoutManager(new LinearLayoutManager(this));
