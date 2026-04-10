@@ -21,7 +21,7 @@ import java.util.Locale;
 /**
  * @author Itay Shehter as8891@bs.amalnet.k12.il
  * @version 1.0
- * @since 26/1/2026
+ * @since 23/03/26
  * The activity provides a form to input and save a new expense into the database using a DatePickerDialog.
  */
 public class AddExpenseActivity extends AppCompatActivity {

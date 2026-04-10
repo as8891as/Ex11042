@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * @author Itay Shehter as8891@bs.amalnet.k12.il
  * @version 1.0
- * @since 26/1/2026
+ * @since 23/03/26
  * The activity handles searching expenses by min/max amount, category filter, and sorting.
  */
 public class SearchFilterActivity extends AppCompatActivity {
@@ -52,12 +52,10 @@ public class SearchFilterActivity extends AppCompatActivity {
         rvFilteredExpenses.setLayoutManager(new LinearLayoutManager(this));
         dbHelper = new ExpenseDatabaseHelper(this);
 
-        // הגדרת ספינר קטגוריות לסינון
         String[] categories = {"הכל", "אוכל", "בילוי", "תחבורה", "חשבונות", "אחר"};
         ArrayAdapter<String> catAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
         spinnerFilterCategory.setAdapter(catAdapter);
 
-        // הגדרת ספינר מיון
         String[] sortOptions = {"ללא מיון", "מחיר עולה", "מחיר יורד"};
         ArrayAdapter<String> sortAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, sortOptions);
         spinnerSortBy.setAdapter(sortAdapter);
@@ -124,7 +122,6 @@ public class SearchFilterActivity extends AppCompatActivity {
         double min = minPriceStr.isEmpty() ? 0 : Double.parseDouble(minPriceStr);
         double max = maxPriceStr.isEmpty() ? Double.MAX_VALUE : Double.parseDouble(maxPriceStr);
 
-        // סינון לפי מחיר וקטגוריה
         for (Expense e : allExpenses) {
             boolean isPriceValid = e.getAmount() >= min && e.getAmount() <= max;
             boolean isCategoryValid = selectedCategory.equals("הכל") || e.getCategory().equals(selectedCategory);
@@ -134,7 +131,6 @@ public class SearchFilterActivity extends AppCompatActivity {
             }
         }
 
-        // מיון הרשימה
         if (selectedSort.equals("מחיר עולה")) {
             Collections.sort(filteredList, new Comparator<Expense>() {
                 @Override
@@ -151,11 +147,9 @@ public class SearchFilterActivity extends AppCompatActivity {
             });
         }
 
-        // עדכון התצוגה
         ExpenseAdapter adapter = new ExpenseAdapter(filteredList, new ExpenseAdapter.OnItemLongClickListener() {
             @Override
             public void onItemLongClick(Expense expense) {
-                // ללא פעולת מחיקה במסך החיפוש
             }
         });
         rvFilteredExpenses.setAdapter(adapter);

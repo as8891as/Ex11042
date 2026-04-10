@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 /**
  * @author Itay Shehter as8891@bs.amalnet.k12.il
  * @version 1.0
- * @since 26/1/2026
+ * @since 23/03/26
  * The activity displays the developer credits and version information.
  */
 public class CreditsActivity extends AppCompatActivity {

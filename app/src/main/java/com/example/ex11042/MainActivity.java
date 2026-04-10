@@ -18,7 +18,7 @@ import java.util.Locale;
 /**
  * @author Itay Shehter as8891@bs.amalnet.k12.il
  * @version 1.0
- * @since 26/1/2026
+ * @since 23/03/26
  * The activity is the main entry point, displaying the dynamic list of expenses, updates in real time, and shows monthly total.
  */
 public class MainActivity extends AppCompatActivity implements ExpenseAdapter.OnItemLongClickListener {
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_expense_list);
 
         rvExpensesList = findViewById(R.id.rvExpensesList);
         rvExpensesList.setLayoutManager(new LinearLayoutManager(this));
