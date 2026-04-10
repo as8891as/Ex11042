@@ -5,11 +5,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ExpenseDatabaseHelper extends SQLiteOpenHelper {
 
+    private static final String TAG = "SQL_DEBUG";
     private static final String DATABASE_NAME = "expenses.db";
     private static final int DATABASE_VERSION = 1;
 
@@ -32,11 +34,14 @@ public class ExpenseDatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_AMOUNT + " REAL, " +
                 COLUMN_CATEGORY + " TEXT, " +
                 COLUMN_DATE + " TEXT)";
+
+        Log.d(TAG, "Creating table: " + createTable);
         db.execSQL(createTable);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        Log.d(TAG, "Upgrading database from " + oldVersion + " to " + newVersion);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXPENSES);
         onCreate(db);
     }
@@ -48,6 +53,8 @@ public class ExpenseDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_AMOUNT, expense.getAmount());
         values.put(COLUMN_CATEGORY, expense.getCategory());
         values.put(COLUMN_DATE, expense.getDate());
+
+        Log.d(TAG, "Inserting expense: " + expense.getDescription() + ", Amount: " + expense.getAmount());
         db.insert(TABLE_EXPENSES, null, values);
         db.close();
     }
@@ -55,7 +62,10 @@ public class ExpenseDatabaseHelper extends SQLiteOpenHelper {
     public List<Expense> getAllExpenses() {
         List<Expense> expenseList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_EXPENSES, null);
+        String query = "SELECT * FROM " + TABLE_EXPENSES;
+
+        Log.d(TAG, "Executing query: " + query);
+        Cursor cursor = db.rawQuery(query, null);
 
         if (cursor.moveToFirst()) {
             do {
@@ -75,8 +85,11 @@ public class ExpenseDatabaseHelper extends SQLiteOpenHelper {
     public double getMonthlyTotal(String month) {
         double total = 0;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT SUM(" + COLUMN_AMOUNT + ") FROM " + TABLE_EXPENSES +
-                " WHERE " + COLUMN_DATE + " LIKE ?", new String[]{month + "%"});
+        String query = "SELECT SUM(" + COLUMN_AMOUNT + ") FROM " + TABLE_EXPENSES + " WHERE " + COLUMN_DATE + " LIKE ?";
+
+        Log.d(TAG, "Executing total query: " + query + " with month: " + month);
+        Cursor cursor = db.rawQuery(query, new String[]{month + "%"});
+
         if (cursor.moveToFirst()) {
             total = cursor.getDouble(0);
         }
@@ -87,6 +100,7 @@ public class ExpenseDatabaseHelper extends SQLiteOpenHelper {
 
     public void deleteExpense(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
+        Log.d(TAG, "Deleting expense with ID: " + id);
         db.delete(TABLE_EXPENSES, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
         db.close();
     }
@@ -98,6 +112,8 @@ public class ExpenseDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_AMOUNT, expense.getAmount());
         values.put(COLUMN_CATEGORY, expense.getCategory());
         values.put(COLUMN_DATE, expense.getDate());
+
+        Log.d(TAG, "Updating expense ID " + expense.getId() + " with new values.");
         db.update(TABLE_EXPENSES, values, COLUMN_ID + " = ?", new String[]{String.valueOf(expense.getId())});
         db.close();
     }
