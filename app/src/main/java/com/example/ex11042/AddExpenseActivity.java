@@ -32,12 +32,6 @@ public class AddExpenseActivity extends AppCompatActivity {
     private ExpenseDatabaseHelper dbHelper;
     private String selectedDate;
 
-    /**
-     * The method is called when the activity starts. It sets up the UI, date picker dialog, and listeners.
-     * <p>
-     *
-     * @param savedInstanceState The saved state bundle
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,10 +66,6 @@ public class AddExpenseActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * The method displays a date picker dialog to allow the user to select a date.
-     * <p>
-     */
     private void showDatePickerDialog() {
         final Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
@@ -94,26 +84,12 @@ public class AddExpenseActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
-    /**
-     * The method is called when a menu is created. It builds the menu based on the resources.
-     * <p>
-     *
-     * @param menu The menu being created
-     * @return The method returns whether the creation of the menu was successful
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
-    /**
-     * The method handles menu item selections.
-     * <p>
-     *
-     * @param item The menu item selected
-     * @return The method returns true if handled
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -132,10 +108,6 @@ public class AddExpenseActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * The method validates input fields and saves the expense to the database.
-     * <p>
-     */
     private void saveData() {
         String desc = etDescription.getText().toString().trim();
         String amountStr = etAmount.getText().toString().trim();
@@ -146,7 +118,7 @@ public class AddExpenseActivity extends AppCompatActivity {
             return;
         }
 
-        if (amountStr.length() > 9) {
+        if (amountStr.length() > 12) {
             Toast.makeText(this, "הסכום שהוזן גדול מדי", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -157,6 +129,12 @@ public class AddExpenseActivity extends AppCompatActivity {
         }
 
         double amount = Double.parseDouble(amountStr);
+
+        if (amount <= 0) {
+            Toast.makeText(this, "הסכום חייב להיות גדול מ-0", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Expense expense = new Expense(desc, amount, category, selectedDate);
         dbHelper.addExpense(expense);
 

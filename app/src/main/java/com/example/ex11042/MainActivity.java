@@ -1,25 +1,34 @@
 package com.example.ex11042;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 /**
  * @author Itay Shehter as8891@bs.amalnet.k12.il
- * @version 1.0
+ * @version 1.1
  * @since 23/03/26
  * The activity is the main entry point, displaying the dynamic list of expenses, updates in real time, and shows monthly total.
  */
@@ -30,13 +39,8 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
     private ExpenseAdapter adapter;
     private ExpenseDatabaseHelper dbHelper;
     private List<Expense> currentList;
+    private String tempEditDate;
 
-    /**
-     * The method is called when the activity starts. It initializes views and database.
-     * <p>
-     *
-     * @param savedInstanceState The saved state bundle
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,10 +54,6 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
         dbHelper = new ExpenseDatabaseHelper(this);
     }
 
-    /**
-     * The method is called when the activity resumes. It refreshes the data dynamically.
-     * <p>
-     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -61,26 +61,12 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
         showMonthlyTotal();
     }
 
-    /**
-     * The method is called when a menu is created. It builds the menu based on the resources.
-     * <p>
-     *
-     * @param menu The menu being created
-     * @return The method returns whether the creation of the menu was successful
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
-    /**
-     * The method handles menu item selections.
-     * <p>
-     *
-     * @param item The menu item selected
-     * @return The method returns true if handled
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -99,10 +85,6 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * The method retrieves updated data from the database and updates the RecyclerView or shows an empty state.
-     * <p>
-     */
     private void refreshList() {
         currentList = dbHelper.getAllExpenses();
 
@@ -117,36 +99,131 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
         }
     }
 
-    /**
-     * The method calculates and displays the current month's cumulative expenses via Toast.
-     * <p>
-     */
     private void showMonthlyTotal() {
         String currentMonth = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
         double total = dbHelper.getMonthlyTotal(currentMonth);
         Toast.makeText(this, "סך הוצאות החודש: " + total + " ₪", Toast.LENGTH_LONG).show();
     }
 
-    /**
-     * The method triggers when an item is long clicked, showing a dialog for update or delete.
-     * <p>
-     *
-     * @param expense The expense object clicked
-     */
     @Override
-    public void onItemLongClick(Expense expense) {
+    public void onItemLongClick(final Expense expense) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("בחר פעולה");
-        builder.setItems(new String[]{"מחק הוצאה"}, new DialogInterface.OnClickListener() {
+        builder.setItems(new String[]{"ערוך הוצאה", "מחק הוצאה"}, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (which == 0) {
+                    showEditDialog(expense);
+                } else if (which == 1) {
                     dbHelper.deleteExpense(expense.getId());
                     refreshList();
                     showMonthlyTotal();
                 }
             }
         });
+        builder.show();
+    }
+
+    private void showEditDialog(final Expense expense) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("ערוך הוצאה");
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(50, 40, 50, 10);
+
+        final EditText etDesc = new EditText(this);
+        etDesc.setHint("תיאור");
+        etDesc.setText(expense.getDescription());
+        layout.addView(etDesc);
+
+        final EditText etAmount = new EditText(this);
+        etAmount.setHint("סכום");
+        etAmount.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        etAmount.setText(String.valueOf(expense.getAmount()));
+        layout.addView(etAmount);
+
+        final Spinner spinnerCategory = new Spinner(this);
+        String[] categories = {"אוכל", "בילוי", "תחבורה", "חשבונות", "אחר"};
+        ArrayAdapter<String> catAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
+        spinnerCategory.setAdapter(catAdapter);
+
+        for (int i = 0; i < categories.length; i++) {
+            if (categories[i].equals(expense.getCategory())) {
+                spinnerCategory.setSelection(i);
+                break;
+            }
+        }
+        layout.addView(spinnerCategory);
+
+        tempEditDate = expense.getDate();
+        final Button btnChangeDate = new Button(this);
+        btnChangeDate.setText("תאריך: " + tempEditDate);
+        btnChangeDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Calendar calendar = Calendar.getInstance();
+                String[] dateParts = tempEditDate.split("-");
+                int year = Integer.parseInt(dateParts[0]);
+                int month = Integer.parseInt(dateParts[1]) - 1;
+                int day = Integer.parseInt(dateParts[2]);
+
+                DatePickerDialog datePicker = new DatePickerDialog(MainActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int y, int m, int d) {
+                        tempEditDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", y, m + 1, d);
+                        btnChangeDate.setText("תאריך: " + tempEditDate);
+                    }
+                }, year, month, day);
+                datePicker.show();
+            }
+        });
+        layout.addView(btnChangeDate);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton("שמור", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String newDesc = etDesc.getText().toString().trim();
+                String newAmountStr = etAmount.getText().toString().trim();
+                String newCategory = spinnerCategory.getSelectedItem().toString();
+
+                if (newDesc.isEmpty() || newAmountStr.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "נא למלא את כל השדות", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (newAmountStr.length() > 12) {
+                    Toast.makeText(MainActivity.this, "הסכום שהוזן גדול מדי", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (newAmountStr.equals(".") || !newAmountStr.matches("^[0-9]*\\.?[0-9]*$")) {
+                    Toast.makeText(MainActivity.this, "אנא הזן סכום תקין", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                double newAmount = Double.parseDouble(newAmountStr);
+
+                if (newAmount <= 0) {
+                    Toast.makeText(MainActivity.this, "הסכום חייב להיות גדול מ-0", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                expense.setDescription(newDesc);
+                expense.setAmount(newAmount);
+                expense.setCategory(newCategory);
+                expense.setDate(tempEditDate);
+
+                dbHelper.updateExpense(expense);
+                refreshList();
+                showMonthlyTotal();
+                Toast.makeText(MainActivity.this, "ההוצאה עודכנה בהצלחה", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("ביטול", null);
         builder.show();
     }
 }
