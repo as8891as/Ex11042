@@ -26,12 +26,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * @author Itay Shehter as8891@bs.amalnet.k12.il
- * @version 1.1
- * @since 23/03/26
- * The activity is the main entry point, displaying the dynamic list of expenses, updates in real time, and shows monthly total.
- */
 public class MainActivity extends AppCompatActivity implements ExpenseAdapter.OnItemLongClickListener {
 
     private RecyclerView rvExpensesList;
@@ -181,10 +175,15 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
         layout.addView(btnChangeDate);
 
         builder.setView(layout);
+        builder.setPositiveButton("שמור", null);
+        builder.setNegativeButton("ביטול", null);
 
-        builder.setPositiveButton("שמור", new DialogInterface.OnClickListener() {
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(View v) {
                 String newDesc = etDesc.getText().toString().trim();
                 String newAmountStr = etAmount.getText().toString().trim();
                 String newCategory = spinnerCategory.getSelectedItem().toString();
@@ -220,10 +219,9 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
                 refreshList();
                 showMonthlyTotal();
                 Toast.makeText(MainActivity.this, "ההוצאה עודכנה בהצלחה", Toast.LENGTH_SHORT).show();
+
+                dialog.dismiss();
             }
         });
-
-        builder.setNegativeButton("ביטול", null);
-        builder.show();
     }
 }
