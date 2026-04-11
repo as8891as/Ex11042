@@ -26,6 +26,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * @author Itay Shehter as8891@bs.amalnet.k12.il
+ * @version 1.0
+ * @since 26/03/2026
+ * The activity is the main entry point, displaying the dynamic list of expenses, updates in real time, and shows the monthly total.
+ */
 public class MainActivity extends AppCompatActivity implements ExpenseAdapter.OnItemLongClickListener {
 
     private RecyclerView rvExpensesList;
@@ -35,6 +41,12 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
     private List<Expense> currentList;
     private String tempEditDate;
 
+    /**
+     * The method is called when the activity is created. The method initializes the activity and the necessary attributes.
+     * <p>
+     *
+     * @param savedInstanceState Contains the last state of the activity, may be null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +60,10 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
         dbHelper = new ExpenseDatabaseHelper(this);
     }
 
+    /**
+     * The method is called when the activity enters the resumed state. The method refreshes the list and shows the monthly total.
+     * <p>
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -55,12 +71,26 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
         showMonthlyTotal();
     }
 
+    /**
+     * The method initializes the contents of the Activity's standard options menu.
+     * <p>
+     *
+     * @param menu The options menu in which you place your items.
+     * @return true for the menu to be displayed.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
+    /**
+     * The method is called whenever an item in your options menu is selected.
+     * <p>
+     *
+     * @param item The menu item that was selected.
+     * @return false to allow normal menu processing to proceed, true to consume it here.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -79,6 +109,10 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * The method retrieves all expenses from the database and updates the RecyclerView.
+     * <p>
+     */
     private void refreshList() {
         currentList = dbHelper.getAllExpenses();
 
@@ -93,12 +127,22 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
         }
     }
 
+    /**
+     * The method calculates the total expenses for the current month and displays it using a Toast.
+     * <p>
+     */
     private void showMonthlyTotal() {
         String currentMonth = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
         double total = dbHelper.getMonthlyTotal(currentMonth);
         Toast.makeText(this, "סך הוצאות החודש: " + total + " ₪", Toast.LENGTH_LONG).show();
     }
 
+    /**
+     * The method is triggered when an expense item is long-clicked. The method displays an options dialog.
+     * <p>
+     *
+     * @param expense The expense object that was clicked.
+     */
     @Override
     public void onItemLongClick(final Expense expense) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -118,6 +162,12 @@ public class MainActivity extends AppCompatActivity implements ExpenseAdapter.On
         builder.show();
     }
 
+    /**
+     * The method displays an AlertDialog allowing the user to edit the details of an existing expense.
+     * <p>
+     *
+     * @param expense The expense object to be edited.
+     */
     private void showEditDialog(final Expense expense) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("ערוך הוצאה");

@@ -21,7 +21,7 @@ import java.util.Locale;
 /**
  * @author Itay Shehter as8891@bs.amalnet.k12.il
  * @version 1.0
- * @since 23/03/26
+ * @since 26/03/2026
  * The activity provides a form to input and save a new expense into the database using a DatePickerDialog.
  */
 public class AddExpenseActivity extends AppCompatActivity {
@@ -32,6 +32,12 @@ public class AddExpenseActivity extends AppCompatActivity {
     private ExpenseDatabaseHelper dbHelper;
     private String selectedDate;
 
+    /**
+     * The method is called when the activity is created. The method initializes the activity and the necessary attributes.
+     * <p>
+     *
+     * @param savedInstanceState Contains the last state of the activity, may be null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +72,10 @@ public class AddExpenseActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * The method displays a DatePickerDialog allowing the user to select a date for the expense.
+     * <p>
+     */
     private void showDatePickerDialog() {
         final Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
@@ -84,12 +94,26 @@ public class AddExpenseActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
+    /**
+     * The method initializes the contents of the Activity's standard options menu.
+     * <p>
+     *
+     * @param menu The options menu in which you place your items.
+     * @return true for the menu to be displayed.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
+    /**
+     * The method is called whenever an item in your options menu is selected.
+     * <p>
+     *
+     * @param item The menu item that was selected.
+     * @return false to allow normal menu processing to proceed, true to consume it here.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -108,6 +132,10 @@ public class AddExpenseActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * The method validates the user input and saves the new expense to the database.
+     * <p>
+     */
     private void saveData() {
         String desc = etDescription.getText().toString().trim();
         String amountStr = etAmount.getText().toString().trim();

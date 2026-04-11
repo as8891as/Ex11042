@@ -112,7 +112,6 @@ public class SearchFilterActivity extends AppCompatActivity {
 
     /**
      * The method filters and sorts the expenses based on user input and updates the RecyclerView.
-     * <p>
      */
     private void applySearchAndFilter() {
         List<Expense> allExpenses = dbHelper.getAllExpenses();
